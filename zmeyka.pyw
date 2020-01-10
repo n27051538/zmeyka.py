@@ -267,7 +267,7 @@ def food_creator(canvas, snakes):
                                                  brick_size*(food_coordinates[0]+1),
                                                  brick_size*(food_coordinates[1]+1),
                                                  fill=food_color, outline=outline_color, width=1)
-        # print("New food created on ", food_coordinates, "!")
+        print("New food created on ", food_coordinates, "!")
 
     food_eaten = False
     food_creator_id = canvas.after(time_step, food_creator, canvas, snakes)
