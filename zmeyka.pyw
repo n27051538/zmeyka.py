@@ -1,8 +1,12 @@
+#!/usr/bin/python
 
-import Tkinter as Tk
+try:
+    import tkinter as Tk
+except ImportError:
+    import Tkinter as Tk
 import random
 
-number_of_snakes = 2
+number_of_snakes = 1
 time_step = 200
 brick_size = 18
 canvas_color = 'white'
@@ -11,7 +15,7 @@ border_color = 'grey'
 border_outline_color = 'black'
 alert_color = '#cc0000'
 canvas_width = 42
-canvas_height = 20
+canvas_height = 10
 snake_colors = ['orange', 'black', 'brown']
 snake_controls = [["<Up>", "<Down>", "<Left>", "<Right>"],
                   ["<w>", "<s>", "<a>", "<d>"],
@@ -100,7 +104,7 @@ def clear(event, canvas, score_text):
         snake.coordinates = []
         canvas.after_cancel(snake.move_task)
     snakes = []
-    food_coordinates = [0,0]
+    food_coordinates = [0, 0]
     food_eaten = True
     for i in range(number_of_snakes):
         snake_score_value[i] = 0
@@ -115,6 +119,7 @@ def pause(event, canvas, pause_button):
     canvas.bind("<p>", lambda event: unpause(event, canvas, pause_button))
     canvas.focus_set()
 
+
 def unpause(event, canvas, pause_button):
     for snake in snakes:
         if not snake.overlap:
@@ -122,7 +127,6 @@ def unpause(event, canvas, pause_button):
     pause_button.bind("<Button-1>", lambda event: pause(event, canvas, pause_button))
     canvas.bind("<p>", lambda event: pause(event, canvas, pause_button))
     canvas.focus_set()
-
 
 
 def start(event, canvas, score_text):
@@ -164,12 +168,10 @@ class Snake:
             self.rectangles.append(self.canvas.create_rectangle(brick_size*x,     brick_size*y,
                                    brick_size*(x+1), brick_size*(y+1),
                                    fill=self.color, outline=outline_color, width=1))
-            # print(canvas.coords(self.rectangles[i]))
 
         self.move_task = self.canvas.after(time_step, self.move)
 
     def move(self):
-        # print("move to [" + str(self.coordinates[0][0]) + ", " + str(self.coordinates[0][1]) + "] ")
         self.deaf = False
         track_step1 = self.coordinates[0][:]
         if self.direction == 'up':
@@ -186,15 +188,14 @@ class Snake:
                            (self.coordinates[0][0]+1)*brick_size,
                            (self.coordinates[0][1]+1)*brick_size)
 
-        #check food
+        # check food
         global food_eaten, food_coordinates, snake_score_value
-        # print("self ", self.coordinates[0], "food ", food_coordinates)
         if self.coordinates[0][0] == food_coordinates[0] and self.coordinates[0][1] == food_coordinates[1]:
             self.coordinates.append(food_coordinates)
             self.rectangles.append(food_rectangle)
             # set color of eaten food to snakes color
             self.canvas.itemconfig(self.rectangles[len(self.rectangles)-1], fill=self.color)
-            print(self.color + " zmey got food! Its current length is " + str(len(self.coordinates)))
+            # print(self.color + " zmey got food! Its current length is " + str(len(self.coordinates)))
             snake_score_value[self.score_index] += 1
             self.score_text.set(str(snake_score_value[self.score_index]))
             food_coordinates = [0, 0]
@@ -223,12 +224,11 @@ class Snake:
 
         if not (1 <= self.coordinates[0][0] < canvas_width-1 and 1 <= self.coordinates[0][1] < canvas_height-1):
             self.overlap = True
-            print('Seems that ' + self.color + ' zmey have crash! Stop! Its length is ' + str(len(self.coordinates)))
+            # print('Seems that ' + self.color + ' zmey have crash! Stop! Its length is ' + str(len(self.coordinates)))
             self.canvas.itemconfig(self.rectangles[0], fill=alert_color)
 
         if not self.overlap:
             self.move_task = self.canvas.after(time_step, self.move)
-
 
     def set_direction_up(self, event):
         if self.direction != "down" and not self.deaf:
@@ -254,27 +254,31 @@ class Snake:
 def food_creator(canvas, snakes):
     global food_eaten, food_creator_id, food_coordinates, food_rectangle
     if food_eaten:
-        while True:
-            food_coordinates[0] = random.randint(1, canvas_width - 2)
-            food_coordinates[1] = random.randint(1, canvas_height - 2)
+
+        # define function to use break and continue in outer cycle
+        def is_food_coords_ok(snakes, food_coordinates):
             for snake in snakes:
                 for coordinate in snake.coordinates:
                     if coordinate[0] == food_coordinates[0] and coordinate[1] == food_coordinates[1]:
-                        continue
-            break
+                        return False
+            return True
+
+        while True:
+            food_coordinates[0] = random.randint(1, canvas_width - 2)
+            food_coordinates[1] = random.randint(1, canvas_height - 2)
+            if is_food_coords_ok(snakes, food_coordinates):
+                break
+            else:
+                continue
+
         food_rectangle = canvas.create_rectangle(brick_size*food_coordinates[0],
                                                  brick_size*food_coordinates[1],
                                                  brick_size*(food_coordinates[0]+1),
                                                  brick_size*(food_coordinates[1]+1),
                                                  fill=food_color, outline=outline_color, width=1)
-        # print("New food created on ", food_coordinates, "!")
 
     food_eaten = False
     food_creator_id = canvas.after(time_step, food_creator, canvas, snakes)
-
-
-def on_left_click(event):
-    print("x=" + str(event.x) + " y=" + str(event.y))
 
 
 if __name__ == '__main__':
