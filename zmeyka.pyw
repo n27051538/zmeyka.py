@@ -15,7 +15,7 @@ border_color = 'grey'
 border_outline_color = 'black'
 alert_color = '#cc0000'
 canvas_width = 42
-canvas_height = 10
+canvas_height = 20
 snake_colors = ['orange', 'black', 'brown']
 snake_controls = [["<Up>", "<Down>", "<Left>", "<Right>"],
                   ["<w>", "<s>", "<a>", "<d>"],
